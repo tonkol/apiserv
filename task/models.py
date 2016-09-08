@@ -1,5 +1,5 @@
 from apiserv import db
-
+import time, datetime
 """
 Database models for Flask-SQLAlchemy
 """
@@ -9,29 +9,40 @@ Task DB Model
 """
 class Task(db.Model):
     id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String(120))
+    text = db.Column(db.String(120))
     body = db.Column(db.Text)
-    creation_date = db.Column(db.DateTime)
-    completion_date = db.Column(db.DateTime)
+    completed = db.Column(db.Boolean)
+    createdAt = db.Column(db.DateTime)
+    completedAt = db.Column(db.DateTime)
     # owner = db.Column(db.Integer, db.ForeignKey('user.id'))
     # category = db.Column(db.Integer, db.ForeignKey('category.id'))
+
+    def _convert_to_DateTime(self, dt):
+        return datetime.datetime.fromtimestamp(dt)
 
     def __init__(
         self,
         id,
-        name,
+        text,
+        completed,
         # owner, 
         body=None,
-        creation_date=None,
-        completion_date=None,
+        createdAt=None,
+        completedAt=None,
         # category=None
     ):
         self.id = id
-        self.name = name
+        self.text = text
         # self.owner = owner
         self.body = body
-        self.creation_date = creation_date
-        self.completion_date = completion_date
+        if createdAt:
+            createdAt_dt = self._convert_to_DateTime(createdAt)
+            self.createdAt = createdAt_dt
+        if completedAt:
+            completedAt_dt = self._convert_to_DateTime(completedAt)
+            self.completedAt = completedAt_dt
+        
+        self.completed = completed
         # self.category = category
 
     def __repr__(self):
