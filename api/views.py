@@ -93,6 +93,7 @@ def handle_task_update(item_id):
             r['result'] = False
     else:
         r['found'] = False
+    return r
 
 
 def handle_task_remove(item_id):
