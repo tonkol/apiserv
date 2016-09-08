@@ -57,6 +57,7 @@ def debug_response():
         }
     return resp
 
+
 def handle_task_get(item_id):
     r = {
         'id': item_id,
@@ -71,6 +72,7 @@ def handle_task_get(item_id):
             r['found'] = True
             r['result'] = task.to_dict()            
     return r
+
 
 def handle_task_update(item_id):
     r = {
@@ -226,7 +228,11 @@ def handle_get_task(id):
     return jsonify(handle_task_get(id))
 
 # PATCH routes
-@api.route('/task/<id>', methods=['PATCH'])
+# PUT routes
+# At the moment we are handling both PUT/PATCH methods the same way
+# Should inspect if BaseQuery.update actually skips unchanged values or not
+
+@api.route('/task/<id>', methods=['PATCH', 'PUT'])
 def handle_update_task(id):
     return jsonify(handle_task_update(id))
     # return jsonify(debug_response())
