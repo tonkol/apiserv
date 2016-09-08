@@ -11,5 +11,7 @@ db = SQLAlchemy(app)
 
 from api import views # Blueprint
 from api.views import api as api_blueprint
+from api.views import define_handlers as define_api_handlers
 
 app.register_blueprint(api_blueprint)
+define_api_handlers()
