@@ -4,6 +4,12 @@ from flask import Blueprint, request, abort, jsonify
 # Import Task model and db
 from task.models import Task, db
 
+def define_handlers():
+    # Define some generic error handlers if missing
+    error_codes = [404, 405]
+    for error_code in error_codes:
+        define_json_errorhandler(error_code)
+
 # Not very elegant but works
 def define_json_errorhandler(error_code):
     # Check that there isn't any existing handlers defined    
@@ -22,7 +28,7 @@ def define_json_errorhandler(error_code):
             app.logger.debug("API.views: Handler for error code %d is already registered." % error_code)
 
 """
-
+Compile debug response
 """
 def debug_response():
     req_json = request.json
@@ -31,27 +37,35 @@ def debug_response():
             'url': request.url,
             'json': request.json,
             'method': request.method
-        }            
+        },
+        "db_connection": db is not None           
     }
-    return jsonify(resp)
+    return resp
 
 def add_new_task():
     resp = {
         'action': 'add_new_task',
         'result': False
     }
+    resp['debug'] = debug_response()
+    
+    # If db connection and Task model exists/is imported
+    if db and Task:
+        task = Task(**request.json)
+        try:
+            db.session.add(task)
+            db.session.flush()
+        except Exception as ex:
+            app.logger.error(ex)
+            db.session.rollback()
 
-    if db:
-        resp['database_connection'] = True
-    else:
-        resp['database_connection'] = False
+        if task.id:
+            db.session.commit()            
+            resp['result'] = True
 
-    return jsonify(resp)
+    return resp
 
-# Define some generic error handlers if missing
-error_codes = [404, 405]
-for error_code in error_codes:
-    define_json_errorhandler(error_code)
+
 
 blueprint_config = {
     'url_prefix': '/api',
@@ -66,10 +80,9 @@ api = Blueprint(
 
 # POST routes
 @api.route('/task', methods=['POST'])
-def handle_post_task():
-    resp = debug_response()
+def handle_post_task():    
     if request.is_json:              
-        resp = add_new_task()
+        resp = jsonify(add_new_task())
     else:
-        resp = debug_response()
+        resp = jsonify(debug_response())
     return resp
