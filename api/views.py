@@ -52,20 +52,23 @@ def add_new_task():
     # If db connection and Task model exists/is imported
     if db and Task:
         task = Task(**request.json)
-        try:
-            db.session.add(task)
-            db.session.flush()
-        except Exception as ex:
-            app.logger.error(ex)
-            db.session.rollback()
+        result = Task.query.filter(Task.id == task.id).first()
+        if not result:
+            try:
+                db.session.add(task)
+                db.session.flush()
+            except Exception as ex:
+                app.logger.error(ex)
+                db.session.rollback()
 
-        if task.id:
-            db.session.commit()            
-            resp['result'] = True
+            # If everything went fine, commit the changes
+            if task.id:
+                db.session.commit()            
+                resp['result'] = True
+        else:
+            resp['message'] = "duplicate entry found"        
 
     return resp
-
-
 
 blueprint_config = {
     'url_prefix': '/api',
