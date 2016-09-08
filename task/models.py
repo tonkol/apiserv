@@ -20,6 +20,16 @@ class Task(db.Model):
     def _convert_to_DateTime(self, dt):
         return datetime.datetime.fromtimestamp(dt)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'completed': self.completed,
+            'body': self.body,
+            'createdAt': self.createdAt,
+            'completedAt': self.completedAt
+        }
+
     def __init__(
         self,
         id,
@@ -46,4 +56,4 @@ class Task(db.Model):
         # self.category = category
 
     def __repr__(self):
-        return '<Task %r>' % self.text
+        return '<Task %r>' % self.id
