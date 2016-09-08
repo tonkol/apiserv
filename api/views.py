@@ -65,21 +65,28 @@ def handle_task_update(item_id):
     }
 
     if db and Task and request.is_json:        
-        try:            
-            req_json = request.json
-            if 'createdAt' in req_json:
-                req_json['createdAt'] = datetime.datetime.fromtimestamp(req_json['createdAt'])
-            if 'completedAt' in req_json:
-                req_json['completedAt'] = datetime.datetime.fromtimestamp(req_json['completedAt'])
-            import pdb; pdb.set_trace()
-            
+        
+        req_json = request.json
+        # We need to convert unix dates to db format
+        if 'createdAt' in req_json:
+            req_json['createdAt'] = datetime.datetime.fromtimestamp(req_json['createdAt'])
+        if 'completedAt' in req_json:
+            req_json['completedAt'] = datetime.datetime.fromtimestamp(req_json['completedAt'])
+        # import pdb; pdb.set_trace()
+        try:
             # This is important to remember when using filter_by (use ONLY id=item.id vs id == item.id)
             filter_result = Task.query.filter_by(id=item_id)
-            if filter_result: 
-                update_result = filter_result.update(dict(req_json))
-                app.logger.debug(type(update_result))
-            db.session.commit()
-            r['result'] = True
+            if filter_result:                
+                r['found'] = True
+                
+                # Remove id from the dict and pass to update
+                # TODO: pass only different values
+                if 'id' in req_json: del req_json['id']
+                update_result = filter_result.update(req_json)                
+                db.session.commit()
+                r['result'] = True
+            else:
+                r['found'] = False
         except Exception as ex:
             err = "Exception while processing item %s" % item_id
             app.logger.error(err, ex)
