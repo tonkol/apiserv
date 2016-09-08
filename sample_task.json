@@ -1,0 +1,21 @@
+[
+  {
+    "id": "4d3b70d5-5666-4ea8-9ac0-63ccea70fe0a",
+    "text": "Make lunch",
+    "completed": true,
+    "createdAt": 1473078175,
+    "completedAt": 1473078208
+  },
+  {
+    "id": "ca68f1af-6599-4b9f-803b-5f5161af2725",
+    "text": "Sleep",
+    "completed": false,
+    "createdAt": 1473078180
+  },
+  {
+    "id": "8ffcf847-73d6-49bc-91fb-7de889668740",
+    "text": "Eat lunch",
+    "completed": false,
+    "createdAt": 1473078215
+  }
+]
