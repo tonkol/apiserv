@@ -1,5 +1,6 @@
 from apiserv import app
 from flask import Blueprint, request, abort, jsonify
+import datetime
 
 # Import Task model and db
 from task.models import Task, db
@@ -55,6 +56,31 @@ def debug_response():
             "db_connection": db is not None           
         }
     return resp
+
+def handle_task_update(item_id):
+    r = {
+        'id': item_id,
+        'found': False,
+        'result': False
+    }
+
+    if db and Task and request.is_json:        
+        try:            
+            req_json = request.json
+            if 'createdAt' in req_json:
+                req_json['createdAt'] = datetime.datetime.fromtimestamp(req_json['createdAt'])
+            if 'completedAt' in req_json:
+                req_json['completedAt'] = datetime.datetime.fromtimestamp(req_json['completedAt'])
+            import pdb; pdb.set_trace()
+            Task.query.filter_by(id==item_id).update(dict(req_json))                
+            db.session.commit()
+            r['result'] = True
+        except Exception as ex:
+            err = "Exception while processing item %s" % item_id
+            app.logger.error(err, ex)
+            r['result'] = False
+    else:
+        r['found'] = False
 
 
 def handle_task_remove(item_id):
@@ -165,6 +191,13 @@ api = Blueprint(
     __name__,
     **blueprint_config
 )
+
+# PATCH routes
+@api.route('/task/<id>', methods=['PATCH'])
+def handle_update_task(id):
+    return jsonify(handle_task_update(id))
+    # return jsonify(debug_response())
+    # return 'PATHCH'
 
 
 # DELETE routes
