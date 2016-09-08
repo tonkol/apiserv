@@ -1,6 +1,8 @@
 ﻿function Get-TTTask {
     param(
+        [Parameter(Mandatory=$True)]
         [string]$Api,
+        [Parameter(Mandatory=$True)]
         [string]$Id        
     )
 
@@ -11,12 +13,14 @@
 
 function Add-TTTask {
     param(
+        [Parameter(Mandatory=$True)]
         [string]$Api,
-        [string]$Id,        
+        [Parameter(Mandatory=$True)]
+        [string]$Id,
+        [Parameter(Mandatory=$True)]        
         [string]$Text,
         [DateTime]$Created,
-        [DateTime]$Completed,
-        [bool]$IsCompleted
+        [DateTime]$Completed        
     )    
 
     $p = @{
@@ -45,7 +49,9 @@ function Add-TTTask {
 
 function Remove-TTTask {
     param(
+        [Parameter(Mandatory=$True)]
         [string]$Api,
+        [Parameter(Mandatory=$True)]
         [string]$Id
     )
         $url = "{0}/task/{1}" -f $Api, $Id
