@@ -10,3 +10,6 @@ app.config.from_object('settings')
 db = SQLAlchemy(app)
 
 from api import views # Blueprint
+from api.views import api as api_blueprint
+
+app.register_blueprint(api_blueprint)
