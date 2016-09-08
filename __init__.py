@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
 # TODO:
 # Think about this approach?
@@ -6,4 +7,4 @@ from flask import Flask
 
 app = Flask(__name__)
 app.config.from_object('settings')
-
+db = SQLAlchemy(app)
