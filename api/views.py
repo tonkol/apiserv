@@ -57,6 +57,21 @@ def debug_response():
         }
     return resp
 
+def handle_task_get(item_id):
+    r = {
+        'id': item_id,
+        'found': False,
+        'result': False
+    }
+
+    if db and Task:
+        task = Task.query.filter(Task.id == item_id).first()
+        # import pdb; pdb.set_trace()
+        if task:
+            r['found'] = True
+            r['result'] = task.to_dict()            
+    return r
+
 def handle_task_update(item_id):
     r = {
         'id': item_id,
@@ -204,6 +219,11 @@ api = Blueprint(
     __name__,
     **blueprint_config
 )
+
+# GET routes
+@api.route('/task/<id>', methods=['GET'])
+def handle_get_task(id):
+    return jsonify(handle_task_get(id))
 
 # PATCH routes
 @api.route('/task/<id>', methods=['PATCH'])
