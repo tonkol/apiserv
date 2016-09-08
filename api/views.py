@@ -10,6 +10,7 @@ def define_handlers():
     for error_code in error_codes:
         define_json_errorhandler(error_code)
 
+
 # Not very elegant but works
 def define_json_errorhandler(error_code):
     # Check that there isn't any existing handlers defined    
@@ -27,20 +28,57 @@ def define_json_errorhandler(error_code):
         else:
             app.logger.debug("API.views: Handler for error code %d is already registered." % error_code)
 
+
 """
 Compile debug response
 """
 def debug_response():
-    req_json = request.json
-    resp = {
-        'request': {
-            'url': request.url,
-            'json': request.json,
-            'method': request.method
-        },
-        "db_connection": db is not None           
-    }
+    app.logger.debug("Content-Type: %s" % request.headers['Content-Type'])
+    if request.is_json:
+        req_json = request.json
+        resp = {
+            'request': {
+                'url': request.url,
+                'json': request.json,
+                'method': request.method,
+                'content-type': request.headers['Content-Type']
+            },
+            "db_connection": db is not None           
+        }
+    else:
+        resp = {
+            'request': {
+                'url': request.url,                
+                'method': request.method,
+                'content-type': request.headers['Content-Type']
+            },
+            "db_connection": db is not None           
+        }
     return resp
+
+
+def handle_task_remove(item_id):
+    r = {
+        'id': item_id,
+        'found': False,
+        'result': False
+    }
+    if db and Task:
+        task = Task.query.filter(Task.id == item_id).first()
+        if task:
+            r['found'] = True
+            try:
+                db.session.delete(task)
+                db.session.commit()
+                r['result'] = True
+            except Exception as ex:
+                err = "Exception while processing item %s" % item_id
+                app.logger.error(err, ex)
+                r['result'] = False
+        else:
+            r['found'] = False
+    return r
+
 
 def handle_add_task():
     resp = {
@@ -114,6 +152,9 @@ def add_new_task(item):
     }
     return r
 
+
+# API Blueprint specs
+
 blueprint_config = {
     'url_prefix': '/api',
     'template_folder': 'templates'
@@ -124,6 +165,16 @@ api = Blueprint(
     __name__,
     **blueprint_config
 )
+
+
+# DELETE routes
+
+@api.route('/task/<id>', methods=['DELETE'])
+def handle_delete_task(id):
+    return jsonify(handle_task_remove(id))
+    # return jsonify(debug_response())
+    # return 'DELETE'
+
 
 # POST routes
 @api.route('/task', methods=['POST'])
