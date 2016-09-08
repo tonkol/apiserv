@@ -31,30 +31,22 @@ def define_json_errorhandler(error_code):
 
 
 """
-Compile debug response
+Compile debug response dict
 """
 def debug_response():
     app.logger.debug("Content-Type: %s" % request.headers['Content-Type'])
+    resp = {
+        'request': {
+            'url': request.url,
+            'method': request.method,
+            'content-type': request.headers['Content-Type']
+        },
+        "db_connection": db is not None
+    }
     if request.is_json:
-        req_json = request.json
-        resp = {
-            'request': {
-                'url': request.url,
-                'json': request.json,
-                'method': request.method,
-                'content-type': request.headers['Content-Type']
-            },
-            "db_connection": db is not None           
-        }
+        resp['request']['json'] = request.json
     else:
-        resp = {
-            'request': {
-                'url': request.url,                
-                'method': request.method,
-                'content-type': request.headers['Content-Type']
-            },
-            "db_connection": db is not None           
-        }
+        pass
     return resp
 
 
