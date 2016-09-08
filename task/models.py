@@ -18,6 +18,7 @@ class Task(db.Model):
 
     def __init__(
         self,
+        id,
         name,
         # owner, 
         body=None,
@@ -25,7 +26,7 @@ class Task(db.Model):
         completion_date=None,
         # category=None
     ):
-        
+        self.id = id
         self.name = name
         # self.owner = owner
         self.body = body
