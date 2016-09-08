@@ -46,4 +46,4 @@ class Task(db.Model):
         # self.category = category
 
     def __repr__(self):
-        return '<Task %r>' % self.name
+        return '<Task %r>' % self.text

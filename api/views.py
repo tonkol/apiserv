@@ -72,7 +72,12 @@ def handle_task_update(item_id):
             if 'completedAt' in req_json:
                 req_json['completedAt'] = datetime.datetime.fromtimestamp(req_json['completedAt'])
             import pdb; pdb.set_trace()
-            Task.query.filter_by(id==item_id).update(dict(req_json))                
+            
+            # This is important to remember when using filter_by (use ONLY id=item.id vs id == item.id)
+            filter_result = Task.query.filter_by(id=item_id)
+            if filter_result: 
+                update_result = filter_result.update(dict(req_json))
+                app.logger.debug(type(update_result))
             db.session.commit()
             r['result'] = True
         except Exception as ex:
