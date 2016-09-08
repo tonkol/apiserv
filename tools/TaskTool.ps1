@@ -1,4 +1,4 @@
-﻿function Get-Task {
+﻿function Get-TTTask {
     param(
         [string]$apiUrl,
         [string]$Id        
@@ -9,7 +9,7 @@
     $response
 }
 
-function Add-Task {
+function Add-TTTask {
     param(
         [string]$apiUrl,
         [string]$Id,        
@@ -43,7 +43,7 @@ function Add-Task {
     $response
 }
 
-function Remove-Task {
+function Remove-TTTask {
     param(
         [string]$apiUrl,
         [string]$Id
@@ -58,7 +58,7 @@ function test-api {
 
     $id = '4d3b70d5-5666-4ea8-9ac0-63ccea70fe0c'
     $add_r = `
-        Add-Task -ApiUrl $api `
+        Add-TTTask -ApiUrl $api `
             -Id $id `
             -Text 'Do do do' `
             -Created (Get-Date) `
@@ -66,13 +66,13 @@ function test-api {
     
     $id2 = '4d3b70d5-5666-4ea8-9ac0-63ccea70fe0d'    
     $add_r2 = `
-        Add-Task -ApiUrl $api `
+        Add-TTTask -ApiUrl $api `
             -Id $id2 `
             -Text 'Do do do'
     
-    $remove_r = Remove-Task -ApiUrl $api -Id $id
+    $remove_r = Remove-TTTask -ApiUrl $api -Id $id
 
-    $get_r = Get-Task -ApiUrl $api -Id $id
+    $get_r = Get-TTTask -ApiUrl $api -Id $id
     
     $add_r
     $add_r2
