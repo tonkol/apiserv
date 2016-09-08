@@ -42,33 +42,77 @@ def debug_response():
     }
     return resp
 
-def add_new_task():
+def handle_add_task():
     resp = {
         'action': 'add_new_task',
-        'result': False
+        'result': False,
+        'success': [],
+        'failed': []
     }
     resp['debug'] = debug_response()
-    
+
     # If db connection and Task model exists/is imported
     if db and Task:
-        task = Task(**request.json)
-        result = Task.query.filter(Task.id == task.id).first()
-        if not result:
-            try:
-                db.session.add(task)
-                db.session.flush()
-            except Exception as ex:
-                app.logger.error(ex)
-                db.session.rollback()
-
-            # If everything went fine, commit the changes
-            if task.id:
-                db.session.commit()            
-                resp['result'] = True
+        if 'items' in request.json:
+            resp['items'] = True
+            items = request.json['items']
         else:
-            resp['message'] = "duplicate entry found"        
+            items = [request.json]
+        failed = []
+        success = []
+        for item in items:
+            result = add_new_task(item)
+            item_details = {
+                'item': item,
+                'result': result['result'],
+                'message': result['message']
+            }
+            if result['result']:
+                success.append(item_details)
+            else:
+                failed.append(item_details)
+
+        resp['success'] = success
+        resp['failed'] = failed
+
+        try:
+            db.session.commit()
+        except Exception as ex:
+            app.logger.error(ex)
+            db.session.rollback()
 
     return resp
+
+
+def add_new_task(item):
+    result = False 
+    message = "no process"   
+    # app.logger.debug(item)
+    query_result = Task.query.filter(Task.id == item['id']).first()
+    if item['id'] and not query_result:
+        try:
+            task = Task(**item)
+            db.session.add(task)
+            db.session.flush()
+            if task.id:
+                result = True
+                message = "success"
+            else:
+                message = "failed"
+        except Exception as ex:
+            err = "Exception while processing item %s" % item['id']
+            app.logger.error(err, ex)
+            message = err
+    else:
+        message = "duplicate entry"
+        result = True
+        app.logger.warning(message)
+
+    r = {
+        'result': result,
+        'message': message
+    }
+    return r
 
 blueprint_config = {
     'url_prefix': '/api',
@@ -85,7 +129,7 @@ api = Blueprint(
 @api.route('/task', methods=['POST'])
 def handle_post_task():    
     if request.is_json:              
-        resp = jsonify(add_new_task())
+        resp = jsonify(handle_add_task())
     else:
         resp = jsonify(debug_response())
     return resp
