@@ -1,6 +1,6 @@
 from apiserv import app
 from flask import Blueprint, request, abort, jsonify
-import datetime
+from datetime import datetime
 
 # Import Task model and db
 from task.models import Task, db
@@ -78,9 +78,9 @@ def handle_task_update(item_id):
         req_json = request.json
         # We need to convert unix dates to db format
         if 'createdAt' in req_json:
-            req_json['createdAt'] = datetime.datetime.fromtimestamp(req_json['createdAt'])
+            req_json['createdAt'] = datetime.fromtimestamp(req_json['createdAt'])
         if 'completedAt' in req_json:
-            req_json['completedAt'] = datetime.datetime.fromtimestamp(req_json['completedAt'])
+            req_json['completedAt'] = datetime.fromtimestamp(req_json['completedAt'])
         # import pdb; pdb.set_trace()
         try:
             # This is important to remember when using filter_by (use ONLY id=item.id vs id == item.id)
@@ -89,8 +89,8 @@ def handle_task_update(item_id):
                 r['found'] = True
                 
                 # Remove id from the dict and pass to update
-                # TODO: pass only different values
-                if 'id' in req_json: del req_json['id']
+                # TODO: pass only changed values
+                # if 'id' in req_json: del req_json['id']
                 update_result = filter_result.update(req_json)                
                 db.session.commit()
                 r['result'] = True
