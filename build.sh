@@ -2,8 +2,8 @@
 
 set -e
 
-docker build . \
---rm -t "apiserv-image"
+docker build \
+--rm -t "apiserv-image" .
 
 docker create \
 --publish=127.0.0.1:5005:5005 \
