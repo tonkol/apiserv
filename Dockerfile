@@ -14,4 +14,4 @@ WORKDIR /srv
 EXPOSE 8025
 USER nobody
 
-CMD ["/srv/manager.py", "runserver"]
+CMD ["/srv/manage.py", "runserver"]
