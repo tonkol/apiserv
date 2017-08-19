@@ -8,7 +8,7 @@ if package_path not in sys.path:
 	sys.path.insert(1, package_path)
 
 from flask_script import Manager, Server
-from apiserv import app
+from . import app
 
 # Define manager for the app to access shell in Flask application context
 # and modify runtime settings
